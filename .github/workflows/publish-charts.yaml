@@ -1,0 +1,55 @@
+# SPDX-FileCopyrightText: 2026 cosa.systems GmbH <https://cosa.systems>
+# SPDX-License-Identifier: Apache-2.0
+---
+# Publish the self-contained OpenDesk-CE `appsuite-public-sector`
+# umbrella chart (with our patched core-mw bundled) to
+# ghcr.io/${{ github.repository_owner }} (i.e. ghcr.io/cosa-systems).
+#
+# Trigger:
+#   * push to `cosa-deploy` (auto-publish on every chart-touching commit)
+#   * workflow_dispatch (manual button in the Actions UI)
+#
+# The umbrella ships its full `charts/` tree pre-bundled (vendored
+# from the OpenDesk CE mirror), so it packages offline — no
+# `helm dependency update`, no authenticated registry. Everything
+# bundled is OpenDesk Community Edition.
+#
+# Chart version is read from helm/appsuite-public-sector/Chart.yaml.
+# Bump the `-cosa.N` suffix there to ship a new build.
+name: "Publish helm charts"
+
+on:
+  push:
+    branches:
+      - "cosa-deploy"
+    paths:
+      - "helm/appsuite-public-sector/**"
+      - ".github/workflows/publish-charts.yaml"
+  workflow_dispatch:
+
+permissions:
+  contents: "read"
+  packages: "write"
+
+jobs:
+  publish:
+    runs-on: "ubuntu-latest"
+    steps:
+      - uses: "actions/checkout@v4"
+      - uses: "azure/setup-helm@v4"
+        with:
+          version: "v3.16.4"
+      - name: "ghcr.io login"
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" \
+            | helm registry login ghcr.io \
+                --username "${{ github.actor }}" \
+                --password-stdin
+      - name: "package + push (self-contained, no dependency resolution)"
+        run: |
+          owner=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          mkdir -p out
+          helm package helm/appsuite-public-sector --destination out
+          tgz=$(ls out/appsuite-public-sector-*.tgz)
+          helm push "${tgz}" "oci://ghcr.io/${owner}"
+          echo "Published: oci://ghcr.io/${owner}/appsuite-public-sector $(basename "${tgz}")"
