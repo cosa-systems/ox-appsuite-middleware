@@ -190,11 +190,12 @@ it is added to the list. A package is disabled, if:
 {{- define "core-mw.envFrom" -}}
 - secretRef:
     name: {{ .Context.Release.Name }}-common-env
-- secretRef:
-    name: {{ include "core-mw.resourceName" (dict "DeploymentContext" . "ResourceName" "secret-envvars") }}
 {{- if .Values.existingEnvSecret }}
 - secretRef:
     name: {{ .Values.existingEnvSecret }}
+{{- else }}
+- secretRef:
+    name: {{ include "core-mw.resourceName" (dict "DeploymentContext" . "ResourceName" "secret-envvars") }}
 {{- end }}
 {{- end -}}
 
