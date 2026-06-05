@@ -1,0 +1,10 @@
+apiVersion: v2
+appVersion: 1.4.2
+dependencies:
+- name: ox-common
+  repository: oci://registry.open-xchange.com/appsuite-core-internal/charts
+  version: ~1.0.33
+description: Nextcloud integration for OX App Suite
+name: nextcloud-integration-ui
+type: application
+version: 1.4.2

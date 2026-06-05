@@ -1,0 +1,33 @@
+{{- if include "core-ui.hasDatabases" . }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  # Rotate name per migration.jobId (fallback .Release.Revision) so each
+  # meaningful redeploy creates a new Job; Job.spec.template is immutable.
+  {{- $ident := .Values.migration.jobId | default (.Release.Revision | toString) }}
+  {{- $suffix := $ident | toString | sha256sum | trunc 8 }}
+  name: {{ printf "%s-migrations-%s" (include "ox-common.names.fullname" .) $suffix | trunc 63 | trimSuffix "-" }}
+  labels:
+    {{- include "ox-common.labels.standard" . | nindent 4 }}
+spec:
+  backoffLimit: 3
+  ttlSecondsAfterFinished: 60
+  template:
+    metadata:
+      labels:
+        {{- include "ox-common.labels.podLabels" . | nindent 8 }}
+    spec: {{ include "ox-common.pods.podSpec" (dict "podRoot" .Values "global" $ "context" . ) | nindent 6 }}
+      restartPolicy: OnFailure
+      containers:
+        - name: migrations
+          {{- include "ox-common.containers.securityContext" (dict "podRoot" .Values "global" $ "context" . ) | nindent 10 }}
+          image: {{ include "ox-common.images.image" (dict "imageRoot" .Values.image "global" $ "context" . ) }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          args: ["server/migrations/job.js"]
+          env:
+            {{- include "core-ui.env" . | nindent 12 }}
+          volumeMounts:
+            {{- include "core-ui.volumeMounts" . | nindent 12 }}
+      volumes:
+        {{- include "core-ui.volumes" . | nindent 8 }}
+{{- end }}

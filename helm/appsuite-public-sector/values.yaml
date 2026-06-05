@@ -1,0 +1,47 @@
+---
+appsuite:
+  overridableExtraUIManifestURLs:
+    nextcloud-integration: http://%%RELEASE-NAME%%-nextcloud-integration-ui/manifest.json
+    public-sector: http://%%RELEASE-NAME%%-public-sector-ui/manifest.json
+  core-mw:
+    image:
+      repository: appsuite-public-sector/middleware-public-sector
+      tag: 8.48.91
+    defaultRegistry: registry.open-xchange.com
+    podAnnotations:
+      commit.open-xchange.com/core: c8d5122827ad67994924a077b1b1a5946af65512
+      commit.open-xchange.com/exchange-interop: e43f77b956c8fa0bb49f8ed4d075e3c3de8f1351
+      commit.open-xchange.com/guard: bfd97ca54526c90a3b0a3af75605f2a810f76262
+      commit.open-xchange.com/nextcloud-integration: 8cf1b742aff361973f638204afcb05eb59e53dcc
+      commit.open-xchange.com/office: d6ac1d69f55a79a0991951471a83239122bf2915
+      commit.open-xchange.com/public-sector: 42c5fce5e44c66d114c986199f41295bb0f9e52b
+      commit.open-xchange.com/weakforced: 7a3d63dfece8ba3fbfec8b9f2e0e60e47567d4bf
+    update:
+      image:
+        repository: appsuite-public-sector/middleware-public-sector
+        tag: 8.48.91
+      defaultRegistry: registry.open-xchange.com
+      podAnnotations:
+        commit.open-xchange.com/core: c8d5122827ad67994924a077b1b1a5946af65512
+        commit.open-xchange.com/exchange-interop: e43f77b956c8fa0bb49f8ed4d075e3c3de8f1351
+        commit.open-xchange.com/guard: bfd97ca54526c90a3b0a3af75605f2a810f76262
+        commit.open-xchange.com/nextcloud-integration: 8cf1b742aff361973f638204afcb05eb59e53dcc
+        commit.open-xchange.com/office: d6ac1d69f55a79a0991951471a83239122bf2915
+        commit.open-xchange.com/public-sector: 42c5fce5e44c66d114c986199f41295bb0f9e52b
+        commit.open-xchange.com/weakforced: 7a3d63dfece8ba3fbfec8b9f2e0e60e47567d4bf
+nextcloud-integration-ui:
+  enabled: true
+  image:
+    repository: appsuite-public-sector/nextcloud-integration-ui
+    tag: 1.4.2
+  defaultRegistry: registry.open-xchange.com
+  podAnnotations:
+    commit.open-xchange.com/nextcloud-integration-ui: '068ac0ea76cd2dc4028201169edc52ea8fb252b2'
+public-sector-ui:
+  enabled: true
+  image:
+    repository: appsuite-public-sector/public-sector-ui
+    tag: 2.6.2
+  defaultRegistry: registry.open-xchange.com
+  podAnnotations:
+    commit.open-xchange.com/public-sector-ui: 241b800594d74df1ab2846050d986e1ace48723e

@@ -1,0 +1,10 @@
+apiVersion: v2
+appVersion: 2.6.2
+dependencies:
+- name: ox-common
+  repository: oci://registry.open-xchange.com/appsuite-core-internal/charts
+  version: ~1.0.33
+description: UI customizations for the public sector
+name: public-sector-ui
+type: application
+version: 2.6.2

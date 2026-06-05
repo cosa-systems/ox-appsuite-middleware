@@ -1,0 +1,17 @@
+apiVersion: v2
+appVersion: 8.48.0
+dependencies:
+- alias: appsuite
+  name: appsuite-public-sector-base
+  repository: oci://registry.open-xchange.com/appsuite-public-sector/charts
+  version: 8.48.497
+- name: nextcloud-integration-ui
+  repository: oci://registry.open-xchange.com/appsuite-core-internal/charts
+  version: 1.4.2
+- name: public-sector-ui
+  repository: oci://registry.open-xchange.com/appsuite-core-internal/charts
+  version: 2.6.2
+description: AppSuite distribution for Public Sector
+name: appsuite-public-sector
+type: application
+version: 2.30.57
