@@ -94,7 +94,7 @@ spec:
         {{- end }}
         {{- range $val.matchRegex }}
         - uri:
-            regex: {{ $val.matchRegex | quote }}
+            regex: {{ . | quote }}
         {{- end }}
       {{- if $val.redirect }}
       redirect:

@@ -1,12 +1,12 @@
 dependencies:
 - name: appsuite-public-sector-base
-  repository: file:///tmp/d20260526-67-s3rt54/appsuite-public-sector-base
-  version: 8.48.497
+  repository: file:///tmp/d20260603-67-etrld4/appsuite-public-sector-base
+  version: 8.49.471
 - name: nextcloud-integration-ui
-  repository: file:///tmp/d20260526-67-s3rt54/nextcloud-integration-ui
+  repository: file:///tmp/d20260603-67-etrld4/nextcloud-integration-ui
   version: 1.4.2
 - name: public-sector-ui
-  repository: file:///tmp/d20260526-67-s3rt54/public-sector-ui
+  repository: file:///tmp/d20260603-67-etrld4/public-sector-ui
   version: 2.6.2
-digest: sha256:73f0e6ddf7664dfedaf008dd3dd3f5b4df0578dc21d587f647ba72e6eae1b1f0
-generated: "2026-05-26T10:48:30.934551015Z"
+digest: sha256:6e89be3eb8958dcbe283b109a6836b7040653122ec12cfedff1851f40a2edc84
+generated: "2026-06-03T11:24:07.63886705Z"

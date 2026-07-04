@@ -1,6 +1,6 @@
 # core-mw
 
-![Version: 6.19.7](https://img.shields.io/badge/Version-6.19.7-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 8.48.0](https://img.shields.io/badge/AppVersion-8.48.0-informational?style=flat-square)
+![Version: 6.20.2](https://img.shields.io/badge/Version-6.20.2-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 8.49.0](https://img.shields.io/badge/AppVersion-8.49.0-informational?style=flat-square)
 
 App Suite Middleware Core Helm Chart
 
@@ -18,7 +18,7 @@ App Suite Middleware Core Helm Chart
 
 | Repository | Name | Version |
 |------------|------|---------|
-| oci://registry.open-xchange.com/appsuite-core-internal/charts/3rdparty | collabora-online | 1.1.58 |
+| oci://registry.open-xchange.com/appsuite-core-internal/charts/3rdparty | collabora-online | 1.1.60 |
 | oci://registry.open-xchange.com/appsuite-core-internal/charts/3rdparty | gotenberg | 1.18.0 |
 | oci://registry.open-xchange.com/appsuite-core-internal/charts | ox-common | 1.0.49 |
 
@@ -191,7 +191,7 @@ The following table lists the configurable parameters of the `App Suite Middlewa
 | checksums.existingSecrets | bool | `true` | Detect changes in Secrets defined by `existing*` values (e.g. `existingPropertiesSecret` or `existingContextSetsSecret`). |
 | collabora-online.enabled | bool | `false` | Whether `Collabora` should be enabled or not. |
 | collabora-online.image.repository | string | `"registry.open-xchange.com/appsuite-core-internal/3rdparty/collabora-online"` |  |
-| collabora-online.image.tag | string | `"25.04.9.2.1"` |  |
+| collabora-online.image.tag | string | `"25.04.9.4.1"` |  |
 | configuration | object | `{"businessmobility":{"logging":{"debug":{"enabled":false,"logPath":""}}},"languages":[],"logging":{"debug":true,"file":{"maxFileSize":"2MB","maxIndex":99,"minIndex":0,"name":"/var/log/open-xchange/open-xchange.log.0","pattern":"/var/log/open-xchange/open-xchange.log.%i"},"json":{"prettyPrint":false},"logger":[{"level":"WARN","name":"org.apache.cxf"},{"level":"WARN","name":"com.openexchange.soap.cxf.logger"}],"logstash":{"host":"localhost","port":31337},"queueSize":2048,"root":{"file":false,"json":true,"level":"INFO","logstash":false},"syslog":{"facility":"USER","host":"localhost","port":514}}}` | Configuration |
 | configuration.businessmobility.logging.debug.enabled | bool | `false` | Whether debug log is enabled or not |
 | configuration.businessmobility.logging.debug.logPath | string | `""` | The path of the log file @default /var/log/open-xchange |
@@ -260,7 +260,7 @@ The following table lists the configurable parameters of the `App Suite Middlewa
 | gotenberg.extraEnv[2].name | string | `"XDG_CACHE_HOME"` |  |
 | gotenberg.extraEnv[2].value | string | `"/tmp/.cache"` |  |
 | gotenberg.image.repository | string | `"registry.open-xchange.com/appsuite-core-internal/3rdparty/gotenberg"` |  |
-| gotenberg.image.tag | string | `"8.27.0"` |  |
+| gotenberg.image.tag | string | `"8.28.0"` |  |
 | gotenberg.securityContext.readOnlyRootFilesystem | bool | `true` |  |
 | gotenberg.volumeMounts[0].mountPath | string | `"/tmp"` |  |
 | gotenberg.volumeMounts[0].name | string | `"tmp-volume"` |  |
@@ -380,7 +380,6 @@ The following table lists the configurable parameters of the `App Suite Middlewa
 | replicas | int | `1` | Number of nodes |
 | resources | object | `{"limits":{"memory":"4096Mi"},"requests":{"cpu":"1000m","memory":"4096Mi"}}` | CPU/Memory resource requests/limits |
 | restricted.drive.enabled | bool | `true` | If enabled tries to mount drive restricted configuration |
-| restricted.mobileApiFacade.enabled | bool | `true` | If enabled tries to mount mobile api facade configuration |
 | roles.admin.services[0].ports[0].name | string | `"http"` |  |
 | roles.admin.services[0].ports[0].port | int | `80` |  |
 | roles.admin.services[0].ports[0].protocol | string | `"TCP"` |  |

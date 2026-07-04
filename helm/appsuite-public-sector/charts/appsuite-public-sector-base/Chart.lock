@@ -1,36 +1,36 @@
 dependencies:
 - name: ox-common
-  repository: file:///tmp/d20260526-55-fh15hb/ox-common
+  repository: file:///tmp/d20260527-58-ln7vjc/ox-common
   version: 1.0.50
 - name: core-mw
-  repository: file:///tmp/d20260526-55-fh15hb/core-mw
-  version: 6.19.7
+  repository: file:///tmp/d20260527-58-ln7vjc/core-mw
+  version: 6.20.2
 - name: core-documentconverter
-  repository: file:///tmp/d20260526-55-fh15hb/core-documentconverter
-  version: 2.46.1
-- name: core-imageconverter
-  repository: file:///tmp/d20260526-55-fh15hb/core-imageconverter
+  repository: file:///tmp/d20260527-58-ln7vjc/core-documentconverter
   version: 2.47.1
+- name: core-imageconverter
+  repository: file:///tmp/d20260527-58-ln7vjc/core-imageconverter
+  version: 2.48.0
 - name: core-ui
-  repository: file:///tmp/d20260526-55-fh15hb/core-ui
-  version: 3.4.7
+  repository: file:///tmp/d20260527-58-ln7vjc/core-ui
+  version: 3.5.5
 - name: core-ui-middleware
-  repository: file:///tmp/d20260526-55-fh15hb/core-ui-middleware
+  repository: file:///tmp/d20260527-58-ln7vjc/core-ui-middleware
   version: 3.4.4
 - name: core-guidedtours
-  repository: file:///tmp/d20260526-55-fh15hb/core-guidedtours
+  repository: file:///tmp/d20260527-58-ln7vjc/core-guidedtours
   version: 2.8.3
 - name: core-user-guide
-  repository: file:///tmp/d20260526-55-fh15hb/core-user-guide
-  version: 2.48.0
+  repository: file:///tmp/d20260527-58-ln7vjc/core-user-guide
+  version: 2.49.0
 - name: guard-ui
-  repository: file:///tmp/d20260526-55-fh15hb/guard-ui
-  version: 2.48.0
+  repository: file:///tmp/d20260527-58-ln7vjc/guard-ui
+  version: 2.49.0
 - name: appsuite-toolkit
-  repository: file:///tmp/d20260526-55-fh15hb/appsuite-toolkit
+  repository: file:///tmp/d20260527-58-ln7vjc/appsuite-toolkit
   version: 1.16.3
 - name: switchboard
-  repository: file:///tmp/d20260526-55-fh15hb/switchboard
+  repository: file:///tmp/d20260527-58-ln7vjc/switchboard
   version: 5.7.5
-digest: sha256:8a8b8c76e05cd7d845b4919bf4680cd75b009d352cf9ae0c7b22b0e7d14588f2
-generated: "2026-05-26T10:37:33.158650988Z"
+digest: sha256:36dfb86b22fe0467dcab8a64452107d4cb8f8c48a3e735779e32f613b26f73dd
+generated: "2026-05-27T01:19:08.161107841Z"

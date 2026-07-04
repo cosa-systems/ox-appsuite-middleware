@@ -6,29 +6,29 @@ appsuite:
   core-mw:
     image:
       repository: appsuite-public-sector/middleware-public-sector
-      tag: 8.48.91
+      tag: 8.49.113
     defaultRegistry: registry.open-xchange.com
     podAnnotations:
-      commit.open-xchange.com/core: c8d5122827ad67994924a077b1b1a5946af65512
+      commit.open-xchange.com/core: '068850e644ec2b2e95fb073d4bdd704f0e98907c'
       commit.open-xchange.com/exchange-interop: e43f77b956c8fa0bb49f8ed4d075e3c3de8f1351
-      commit.open-xchange.com/guard: bfd97ca54526c90a3b0a3af75605f2a810f76262
+      commit.open-xchange.com/guard: bde4037fd1e6e549a6f1f6b03ce652fd6838d762
       commit.open-xchange.com/nextcloud-integration: 8cf1b742aff361973f638204afcb05eb59e53dcc
-      commit.open-xchange.com/office: d6ac1d69f55a79a0991951471a83239122bf2915
-      commit.open-xchange.com/public-sector: 42c5fce5e44c66d114c986199f41295bb0f9e52b
-      commit.open-xchange.com/weakforced: 7a3d63dfece8ba3fbfec8b9f2e0e60e47567d4bf
+      commit.open-xchange.com/office: 07515efccd817a36150bfd2a62c6f11153a370eb
+      commit.open-xchange.com/public-sector: 241b800594d74df1ab2846050d986e1ace48723e
+      commit.open-xchange.com/weakforced: 45315409d6114849f50419c1b3efc33d387c4b3f
     update:
       image:
         repository: appsuite-public-sector/middleware-public-sector
-        tag: 8.48.91
+        tag: 8.49.113
       defaultRegistry: registry.open-xchange.com
       podAnnotations:
-        commit.open-xchange.com/core: c8d5122827ad67994924a077b1b1a5946af65512
+        commit.open-xchange.com/core: '068850e644ec2b2e95fb073d4bdd704f0e98907c'
         commit.open-xchange.com/exchange-interop: e43f77b956c8fa0bb49f8ed4d075e3c3de8f1351
-        commit.open-xchange.com/guard: bfd97ca54526c90a3b0a3af75605f2a810f76262
+        commit.open-xchange.com/guard: bde4037fd1e6e549a6f1f6b03ce652fd6838d762
         commit.open-xchange.com/nextcloud-integration: 8cf1b742aff361973f638204afcb05eb59e53dcc
-        commit.open-xchange.com/office: d6ac1d69f55a79a0991951471a83239122bf2915
-        commit.open-xchange.com/public-sector: 42c5fce5e44c66d114c986199f41295bb0f9e52b
-        commit.open-xchange.com/weakforced: 7a3d63dfece8ba3fbfec8b9f2e0e60e47567d4bf
+        commit.open-xchange.com/office: 07515efccd817a36150bfd2a62c6f11153a370eb
+        commit.open-xchange.com/public-sector: 241b800594d74df1ab2846050d986e1ace48723e
+        commit.open-xchange.com/weakforced: 45315409d6114849f50419c1b3efc33d387c4b3f
 nextcloud-integration-ui:
   enabled: true
   image:

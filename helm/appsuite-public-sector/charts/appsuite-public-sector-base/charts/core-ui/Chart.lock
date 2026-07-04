@@ -3,4 +3,4 @@ dependencies:
   repository: oci://registry.open-xchange.com/appsuite-core-internal/charts
   version: 1.0.50
 digest: sha256:545b1ec182e1d2af4ec473a0ee1bd91cadf2b4a0179c79a090df07748bce655e
-generated: "2026-05-26T10:08:33.549944505Z"
+generated: "2026-05-20T11:49:44.418822568Z"

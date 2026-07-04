@@ -103,10 +103,6 @@ restricted:
     # -- If enabled tries to mount drive restricted configuration
     enabled: true
 
-  mobileApiFacade:
-    # -- If enabled tries to mount mobile api facade configuration
-    enabled: true
-
 remoteDebug:
   # -- Whether Java Remote Debugging is enabled.
   enabled: false
@@ -981,7 +977,7 @@ gotenberg:
   enabled: false
   image:
     repository: registry.open-xchange.com/appsuite-core-internal/3rdparty/gotenberg
-    tag: '8.27.0'
+    tag: '8.28.0'
   securityContext:
     readOnlyRootFilesystem: true
   volumes:
@@ -1009,4 +1005,4 @@ collabora-online:
   enabled: false
   image:
     repository: registry.open-xchange.com/appsuite-core-internal/3rdparty/collabora-online
-    tag: "25.04.9.2.1"
+    tag: "25.04.9.4.1"

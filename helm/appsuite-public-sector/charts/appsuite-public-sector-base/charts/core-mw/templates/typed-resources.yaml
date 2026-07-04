@@ -313,11 +313,6 @@ spec:
               mountPath: /opt/open-xchange/etc/pushClientConfig/drive-mobile-android
               readOnly: true
             {{- end }}
-            {{- if $values.restricted.mobileApiFacade.enabled }}
-            - name: mobile-api-facade-restricted-config
-              mountPath: /opt/open-xchange/etc/pushClientConfig/mobile-api-facade-restricted-config.yaml
-              readOnly: true
-            {{- end }}
         {{ include "core-mw.containers" $context | nindent 8 }}
       volumes:
         {{ include "core-mw.volumes" $context | nindent 8 }}
@@ -356,10 +351,6 @@ spec:
         - name: drive-restricted-fcm-keystore
           secret:
             secretName: drive-restricted-fcm-keystore
-            optional: true
-        - name: mobile-api-facade-restricted-config
-          secret:
-            secretName: mobile-api-facade-restricted-config
             optional: true
 ---
 {{   end -}}
@@ -471,11 +462,6 @@ spec:
               mountPath: /opt/open-xchange/etc/pushClientConfig/drive-restricted-config.yaml
               readOnly: true
             {{- end }}
-            {{- if $context.Values.restricted.mobileApiFacade.enabled }}
-            - name: mobile-api-facade-restricted-config
-              mountPath: /opt/open-xchange/etc/pushClientConfig/mobile-api-facade-restricted-config.yaml
-              readOnly: true
-            {{- end }}
       {{- end -}}
       {{- end -}}
       {{- with $globalUpgradeConfig.Sidecars -}}
@@ -522,10 +508,6 @@ spec:
         - name: drive-restricted-config
           secret:
             secretName: drive-restricted-config
-            optional: true
-        - name: mobile-api-facade-restricted-config
-          secret:
-            secretName: mobile-api-facade-restricted-config
             optional: true
         {{ with $globalUpgradeConfig.ExtraVolumes -}}
         {{ toYaml . | nindent 8 }}
