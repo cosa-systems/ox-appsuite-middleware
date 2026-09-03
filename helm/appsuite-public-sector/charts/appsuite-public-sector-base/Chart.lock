@@ -1,36 +1,36 @@
 dependencies:
 - name: ox-common
-  repository: file:///tmp/d20260527-58-ln7vjc/ox-common
-  version: 1.0.50
+  repository: file:///tmp/d20260813-55-u1t1xd/ox-common-1.0.51/ox-common
+  version: 1.0.51
+- name: booking
+  repository: file:///tmp/d20260813-55-u1t1xd/booking-0.5.2/booking
+  version: 0.5.2
 - name: core-mw
-  repository: file:///tmp/d20260527-58-ln7vjc/core-mw
-  version: 6.20.2
+  repository: file:///tmp/d20260813-55-u1t1xd/core-mw-6.22.6/core-mw
+  version: 6.22.6
 - name: core-documentconverter
-  repository: file:///tmp/d20260527-58-ln7vjc/core-documentconverter
-  version: 2.47.1
+  repository: file:///tmp/d20260813-55-u1t1xd/core-documentconverter-2.49.0/core-documentconverter
+  version: 2.49.0
 - name: core-imageconverter
-  repository: file:///tmp/d20260527-58-ln7vjc/core-imageconverter
-  version: 2.48.0
+  repository: file:///tmp/d20260813-55-u1t1xd/core-imageconverter-2.50.1/core-imageconverter
+  version: 2.50.1
 - name: core-ui
-  repository: file:///tmp/d20260527-58-ln7vjc/core-ui
-  version: 3.5.5
+  repository: file:///tmp/d20260813-55-u1t1xd/core-ui-3.7.5/core-ui
+  version: 3.7.5
 - name: core-ui-middleware
-  repository: file:///tmp/d20260527-58-ln7vjc/core-ui-middleware
-  version: 3.4.4
-- name: core-guidedtours
-  repository: file:///tmp/d20260527-58-ln7vjc/core-guidedtours
-  version: 2.8.3
+  repository: file:///tmp/d20260813-55-u1t1xd/core-ui-middleware-4.4.4/core-ui-middleware
+  version: 4.4.4
 - name: core-user-guide
-  repository: file:///tmp/d20260527-58-ln7vjc/core-user-guide
-  version: 2.49.0
+  repository: file:///tmp/d20260813-55-u1t1xd/core-user-guide-2.51.0/core-user-guide
+  version: 2.51.0
 - name: guard-ui
-  repository: file:///tmp/d20260527-58-ln7vjc/guard-ui
-  version: 2.49.0
+  repository: file:///tmp/d20260813-55-u1t1xd/guard-ui-2.51.0/guard-ui
+  version: 2.51.0
 - name: appsuite-toolkit
-  repository: file:///tmp/d20260527-58-ln7vjc/appsuite-toolkit
-  version: 1.16.3
+  repository: file:///tmp/d20260813-55-u1t1xd/appsuite-toolkit-1.18.0/appsuite-toolkit
+  version: 1.18.0
 - name: switchboard
-  repository: file:///tmp/d20260527-58-ln7vjc/switchboard
-  version: 5.7.5
-digest: sha256:36dfb86b22fe0467dcab8a64452107d4cb8f8c48a3e735779e32f613b26f73dd
-generated: "2026-05-27T01:19:08.161107841Z"
+  repository: file:///tmp/d20260813-55-u1t1xd/switchboard-5.8.8/switchboard
+  version: 5.8.8
+digest: sha256:43123c03d69de8e783f48a5fd0e08ada2cd3d9e11037351d099c783195d67160
+generated: "2026-08-13T11:05:18.637491775Z"

@@ -50,6 +50,23 @@ defaultSecurityContext:
     drop:
       - ALL
 
+# Run the pods under a dedicated ServiceAccount rather than the namespace default
+# one (CIS 5.1.5), and mount no API token (CIS 5.1.6). Switchboard makes no
+# Kubernetes API calls, so it needs neither a token nor any RBAC. Set the
+# top-level serviceAccountName to use an account you manage yourself; that
+# suppresses the one created here.
+serviceAccount:
+  create: true
+  # defaults to the chart fullname
+  name: ""
+  annotations: {}
+  # ServiceAccount-level default, for any pod that does not state its own
+  automountServiceAccountToken: false
+
+# Pod-level token automount, which wins over the ServiceAccount-level setting
+# above. Leave false unless a workload of this chart needs the Kubernetes API.
+automountServiceAccountToken: false
+
 service:
   type: ClusterIP
   port: 80
@@ -83,6 +100,36 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
+
+# PodDisruptionBudget for the switchboard pods. Opt-in, because a PDB only
+# constrains voluntary evictions such as node drains and cluster autoscaler
+# consolidation: it does not govern rolling updates, autoscaling scale-down or
+# node failures. Needs at least two replicas to protect anything. Same values
+# contract as the core-mw chart, so one umbrella values file configures both the
+# same way.
+#
+# Evicting a switchboard pod always drops the websockets it holds; clients
+# reconnect through the Redis adapter (no sticky sessions). The budget therefore
+# staggers evictions so clients land on a surviving pod instead of reconnecting
+# into an empty backend.
+pdb:
+  # Whether a PodDisruptionBudget should be created
+  create: false
+  # Minimum number or percentage of pods that must be available. Mutually
+  # exclusive with maxUnavailable. Examples: 1, "50%"
+  minAvailable: ""
+  # Maximum number or percentage of pods that can be unavailable. Mutually
+  # exclusive with minAvailable. Usually the better choice: it stays correct when
+  # replicaCount or the autoscaling range changes, and on a single replica it
+  # degrades to "always evictable" instead of blocking node drains forever.
+  # Examples: 1, "25%"
+  maxUnavailable: ""
+  # Policy for evicting unhealthy (not yet Ready) pods, rendered as
+  # `spec.unhealthyPodEvictionPolicy` (GA since Kubernetes 1.31). Leave empty to
+  # omit. "AlwaysAllow" stops an unhealthy pod blocking a node drain
+  # indefinitely and only ever permits more eviction, never less.
+  # Examples: "IfHealthyBudget", "AlwaysAllow"
+  unhealthyPodEvictionPolicy: ""
 
 probe:
   liveness:
@@ -157,11 +204,21 @@ mysql:
   auth:
     user: ""
     password: ""
+  tls:
+    enabled: false
+    ca: ""
+    rejectUnauthorized: true
+    caSecretName: ""
+    caSecretKey: ""
 
 cron:
   cleanupDb: "0 0 * * *"
   sidecarInjection:
     disabled: true
+
+migration:
+  # Rotation token for the migrate Job name suffix; falls back to .Release.Revision.
+  jobId: ""
 
 vapid:
   enabled: false

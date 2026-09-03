@@ -95,7 +95,7 @@ imageconverter:
   cache:
     remoteCache: {}
       # url: https://optional-cache-host:8001/cache or blank (explicitly: "" value) to disable usage of CacheService in case global.core-cacheservice.enabled=true
-    # maxEntries: 250000
+    # maxEntries: 100000
     # maxSizeMegaBytes: -1
     # maxLifetimeSeconds: 2592000
     # cleanupPeriodSeconds: 300

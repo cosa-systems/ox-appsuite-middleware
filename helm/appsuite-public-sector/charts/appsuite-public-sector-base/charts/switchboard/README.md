@@ -184,6 +184,24 @@ Configuring webpush on the switchboard requires a database to store the client's
           password: ""
 ```
 
+To connect to the database via TLS, enable `mysql.tls`:
+
+```yaml
+    switchboard:
+      mysql:
+        enabled: true
+        # ...
+        tls:
+          enabled: true
+          ca: |
+            -----BEGIN CERTIFICATE-----
+            ...
+            -----END CERTIFICATE-----
+          rejectUnauthorized: true
+```
+
+When `mysql.existingSecret` is used, place the CA PEM under the `MYSQL_SSL_CA` key in that secret instead of setting `mysql.tls.ca`. The CA is optional — if omitted, the system trust store is used. Setting `rejectUnauthorized: false` disables certificate verification and should only be used in development.
+
 The configured database must be accessible from the switchboard deployment, and the database user must have the following permissions:
 
 ```sql
@@ -314,6 +332,16 @@ Usually 365d should be a decent value.
 | `overrides.fullname`                         | Full name of the chart installation                                                                         | `"RELEASE-NAME-switchboard"`                                    |
 | `overrides.appsuiteSecret`                   | Prefix of the appsuite secret                                                                                | `"RELEASE-NAME-appsuite"`                                       |
 | `overrides.jwtSecret`                        | Prefix of the jwt secret                                                                                     | `"RELEASE-NAME-jwt"`                                            |
+| `serviceAccount.create`                      | Create a dedicated ServiceAccount instead of running on the namespace `default` one (CIS 5.1.5)              | `true`                                                          |
+| `serviceAccount.name`                        | Name of the created ServiceAccount, defaults to the chart fullname                                          | `""`                                                            |
+| `serviceAccount.annotations`                 | Annotations for the ServiceAccount, e.g. to bind a cloud IAM role                                           | `{}`                                                            |
+| `serviceAccount.automountServiceAccountToken` | ServiceAccount-level token automount, applies to pods that do not state their own                          | `false`                                                         |
+| `serviceAccountName`                         | Use a ServiceAccount you manage yourself; suppresses the one created by this chart                          | unset                                                           |
+| `automountServiceAccountToken`               | Pod-level token automount, wins over the ServiceAccount-level setting. Switchboard needs no Kubernetes API access | `false`                                                    |
+| `pdb.create`                                 | Create a PodDisruptionBudget limiting voluntary evictions (node drains, autoscaler consolidation). Needs at least two replicas to protect anything | `false` |
+| `pdb.minAvailable`                           | Minimum number or percentage of pods that must be available. Mutually exclusive with `pdb.maxUnavailable`    | `""`                                                            |
+| `pdb.maxUnavailable`                         | Maximum number or percentage of pods that can be unavailable. Mutually exclusive with `pdb.minAvailable`     | `""`                                                            |
+| `pdb.unhealthyPodEvictionPolicy`             | Rendered as `spec.unhealthyPodEvictionPolicy` (Kubernetes >= 1.31). Empty omits it. `AlwaysAllow` stops an unhealthy pod blocking a node drain | `""` |
 | `redis.hosts`                                | Redis hosts as list                                                                                         | `["localhost:6379"]`                                            |
 | `redis.tls.enabled`                          | Enable TLS for Redis                         | `false`              |
 | `redis.tls.ca`                               | PEM version of redis server CA certificate   | `""`                 |
@@ -337,6 +365,11 @@ Usually 365d should be a decent value.
 | `mysql.connections`                            |  Number of concurrent connections to the database.                                               | `""`                                                            |
 | `mysql.auth.user`                            | The database user.                                               | `""`                                                            |
 | `mysql.auth.password`                            | The database password.                                               | `""`                                                            |
+| `mysql.tls.enabled`                            | Enable TLS for the mysql/mariadb connection.                                               | `false`                                                            |
+| `mysql.tls.ca`                            | PEM contents of the database server CA certificate. Stored in the generated secret as `MYSQL_SSL_CA`. When using `mysql.existingSecret`, populate `MYSQL_SSL_CA` in that secret instead. | `""`                                                            |
+| `mysql.tls.rejectUnauthorized`                            | Verify the server certificate against the trusted CAs. Set to `false` for self-signed certificates without a configured CA.                                               | `true`                                                            |
+| `mysql.tls.caSecretName`                            | Read the CA from a different secret than the connection secret (e.g. an operator- or cert-manager-managed CA bundle). Defaults to the connection secret.                                               | `""`                                                            |
+| `mysql.tls.caSecretKey`                            | Key inside `caSecretName` that holds the CA PEM (e.g. `ca.crt`).                                               | `"MYSQL_SSL_CA"`                                                            |
 | `cron.cleanupDb`                            | Database cleanup interval (Cron notation)                                                      | `0 0 * * * *`                                       |
 | `cron.sidecarInjection.disabled`                     | Disable Istio Sidecar Injection for CronJobs                                                   | `true`                                              |
 | `vapid.enabled`                            | Wether VAPID secret is enabled. Needed for webpush.                                              | `"false"`                                                            |

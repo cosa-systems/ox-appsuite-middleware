@@ -146,3 +146,9 @@ migration:
 config:
   features:
     bimi: false
+
+# name of an existing ConfigMap containing managed mail signatures/templates
+# and signature design HTML templates with policy. If not set, the
+# /ui/v1/assets/mail/{signatures,templates,designs} routes return empty lists.
+mailAssets:
+  configMapName: ""

@@ -205,6 +205,18 @@ app.kubernetes.io/instance: {{ .Release.Name }}
     secretKeyRef:
       name: {{ include "switchboard.mysqlSecret" . }}
       key: MYSQL_USER
+{{- if .Values.mysql.tls.enabled }}
+- name: DB_SWITCHBOARD_SSL
+  value: "true"
+- name: DB_SWITCHBOARD_SSL_REJECT_UNAUTHORIZED
+  value: {{ .Values.mysql.tls.rejectUnauthorized | quote }}
+- name: DB_SWITCHBOARD_SSL_CA
+  valueFrom:
+    secretKeyRef:
+      name: {{ .Values.mysql.tls.caSecretName | default (include "switchboard.mysqlSecret" .) }}
+      key: {{ .Values.mysql.tls.caSecretKey | default "MYSQL_SSL_CA" }}
+      optional: true
+{{- end }}
 {{- end }}
 - name: VAPID_ENABLED
   value: {{ .Values.vapid.enabled | quote }}

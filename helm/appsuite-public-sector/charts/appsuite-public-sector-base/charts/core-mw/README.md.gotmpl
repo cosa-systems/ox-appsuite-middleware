@@ -49,6 +49,38 @@ Not necessary anymore but it's possible to override them e.g. via `.Values.globa
 - Added support for `PodDisruptionBudget` (PDB) via the new `pdb` configuration section.
 - This version adds a new `middleware.open-xchange.com/type` label to pods. Upgrading to this version will trigger a rolling restart of all pods due to the label change.
 
+### 6.21.0
+
+#### Third-party Java agent support
+
+The chart supports injecting third-party Java agents (e.g. Elastic APM) into the middleware pod via `extraInitContainers`. A typical setup uses an init container to copy the agent JAR into a shared volume, which is then mounted into the middleware container and activated via `javaOpts.other`.
+
+> **Support scope:** OX supports the Helm injection mechanism (`extraInitContainers`, `extraVolumes`, `extraMounts`, `javaOpts.other`). The internal behavior of third-party agents is outside OX support scope.
+
+##### Example: Elastic APM agent
+
+```yaml
+extraInitContainers:
+  - name: elastic-apm-init
+    image: docker.elastic.co/apm/apm-agent-java:1.52.0
+    command: ["cp", "/usr/agent/elastic-apm-agent.jar", "/apm-agent/"]
+    volumeMounts:
+      - name: apm-agent
+        mountPath: /apm-agent
+
+extraVolumes:
+  - name: apm-agent
+    emptyDir: {}
+
+extraMounts:
+  - name: apm-agent
+    mountPath: /opt/apm-agent
+    readOnly: true
+
+javaOpts:
+  other: "-javaagent:/opt/apm-agent/elastic-apm-agent.jar"
+```
+
 ## Upgrading
 
 ### To 6.0.1
@@ -165,6 +197,71 @@ kubectl scale deployment appsuite-core-mw-groupware-without-docs --replicas=2
 This process needs to be followed for all node definitions that previously had the `hazelcast-data-holding` role without having the `documents` role after the migration.
 
 Don't forget to scale up the replicas in your `values.yaml` again.
+
+## Using `existing*Secret` values
+
+The `existing*Secret` values let you supply configuration from **Secrets you create and manage yourself**
+(for example via Vault, sealed-secrets or external-secrets) instead of placing sensitive data directly in
+`values.yaml`. The chart only *references* these Secrets, so each one **must already exist in the release
+namespace** before you install or upgrade.
+
+There are two behaviors. Know which one applies to the value you are setting:
+
+- **Additive** &ndash; your Secret is mounted *alongside* the chart-rendered configuration; both apply.
+- **Replace** &ndash; your Secret *replaces* the chart-rendered equivalent, and the corresponding plain
+  `values.yaml` settings are then ignored.
+
+| Value | Behavior | Combines with / replaces |
+|-------|----------|--------------------------|
+| `existingPropertiesSecret`   | Additive | `properties`, `secretProperties`, `propertiesFiles`, `secretPropertiesFiles` |
+| `existingUISettingsSecret`   | Additive | `uiSettings`, `secretUISettings`, `uiSettingsFiles`, `secretUISettingsFiles` |
+| `existingMetaSecret`         | Additive | `meta` |
+| `existingContextSetsSecret`  | Additive | `contextSets`, `secretContextSets` |
+| `existingETCFilesSecret`     | Additive | `etcFiles`, `secretETCFiles` |
+| `existingETCBinariesSecret`  | Additive | `etcBinaries`, `secretETCBinaries` |
+| `existingYAMLFilesSecret`    | Additive | `yamlFiles`, `secretYAMLFiles` |
+| `existingASConfigSecret`     | **Replace** | `asConfig` |
+| `existingEnvSecret`          | Additive (env) | container environment (`envFrom`) |
+| `redis.existingSecret`       | **Replace** | chart-generated Redis properties secret |
+| `mysql.existingSecret`       | **Replace** | chart-generated configdb credentials secret |
+
+### Override precedence
+
+For the additive property/UI-settings secrets, configuration is applied in numeric file-name order. To make
+your file win over the chart-generated configuration, prefix it with a number higher than the chart's:
+
+- properties: use a prefix `>= 1001` (the chart uses `<= 1000`)
+- UI settings: use a prefix `>= 2001` (the chart uses `<= 2000`)
+
+```yaml
+# stringData of the secret named by existingPropertiesSecret
+1001_existing.yaml: |
+  anywhere:
+    com.openexchange.foobar: "true"
+```
+
+`existingEnvSecret` is added as the **last** `envFrom` source, so on a duplicate key it overrides the
+common-env and chart-generated env secrets, but never `extraEnv`. For example, a `MASTER_ADMIN_USER` key in
+your secret wins over the `MASTER_ADMIN_USER` the chart generates from `masterAdmin`.
+
+This override happens **only at the container-environment level**. The chart's own templating still reads the
+plain `masterAdmin` / `masterPassword` values (it does *not* look at `existingEnvSecret`) when it generates
+other resources. So to change the master admin everywhere, set `masterAdmin` / `masterPassword` rather than
+only overriding the env var through `existingEnvSecret`.
+
+### Rolling restarts on content change
+
+With `checksums.existingSecrets: true` (the default), the checksum of each referenced Secret's contents is
+folded into a pod annotation, so editing a Secret triggers a rolling restart. `mysql.existingSecret` is
+intentionally excluded (connection details rarely change).
+
+### Example
+
+```yaml
+existingPropertiesSecret: my-extra-props   # additive; file prefixed 1001_ to override chart props
+existingASConfigSecret: my-as-config       # replaces asConfig entirely
+existingEnvSecret: my-env                  # extra environment variables, last-wins on duplicate keys
+```
 
 ## Configuration
 

@@ -132,6 +132,11 @@ app.kubernetes.io/instance: {{ .Release.Name }}
   secret:
     secretName: {{ include "core-ui.jwksSecret" . }}
 {{- end }}
+{{- if and .Values.mailAssets .Values.mailAssets.configMapName }}
+- name: mail-assets
+  configMap:
+    name: {{ .Values.mailAssets.configMapName | quote }}
+{{- end }}
 {{- end -}}
 
 {{- define "core-ui.volumeMounts" -}}
@@ -141,6 +146,11 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 {{- if .Values.jwks.enabled }}
 - name: jwks-cert
   mountPath: /app/jwks-cert
+  readOnly: true
+{{- end }}
+{{- if and .Values.mailAssets .Values.mailAssets.configMapName }}
+- name: mail-assets
+  mountPath: /etc/mail-assets
   readOnly: true
 {{- end }}
 {{- end -}}

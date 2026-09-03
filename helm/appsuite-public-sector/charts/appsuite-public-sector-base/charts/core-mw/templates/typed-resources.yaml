@@ -75,8 +75,10 @@ spec:
       priorityClassName: {{ $values.priorityClassName | quote }}
       terminationGracePeriodSeconds: {{ $values.terminationGracePeriodSeconds }}
       {{- $initContainerEnabled := include "core-mw.init.enabled" $values -}}
-      {{ if eq $initContainerEnabled "true" }}
+      {{- $hasExtraInitContainers := and $values.extraInitContainers (gt (len $values.extraInitContainers) 0) -}}
+      {{- if or (eq $initContainerEnabled "true") $hasExtraInitContainers }}
       initContainers:
+      {{- if eq $initContainerEnabled "true" }}
         - name: init-middleware
           image: {{ include "ox-common.images.image" (dict "imageRoot" $values.image "global" $ "context" $globalContext) }}
           imagePullPolicy: {{ $values.image.pullPolicy }}
@@ -91,7 +93,7 @@ spec:
               {{- if (or $values.enableInitialization $values.enableDBConnectionCheck) }}
               echo -n "Waiting for the MySQL Server to be ready ... "
               while ! nc -z -w 5 "${MYSQL_HOST}" "${MYSQL_PORT}" > /dev/null 2>&1; do
-                  : 
+                  :
               done
               echo "The MySQL Server is up & running"
               {{- end }}
@@ -168,6 +170,8 @@ spec:
               mountPath: /heapdump
             {{- end }}
             {{ include "core-mw.volumeMounts" $context | nindent 12 }}
+      {{- end }}
+        {{ include "core-mw.extraInitContainers" $context | nindent 8 }}
       {{- end }}
       containers:
         - name: {{ $globalContext.Chart.Name }}
@@ -268,9 +272,18 @@ spec:
             - name: JAVA_OPTS_NET
               value: "{{ $context.Values.javaOpts.network }}"
             {{- end }}
-            {{- if not (empty $values.javaOpts.other) }}
+            {{- if $values.javaOpts.mallocArenaMax }}
+            - name: MALLOC_ARENA_MAX
+              value: "{{ $values.javaOpts.mallocArenaMax }}"
+            {{- end }}
+            {{- $otherOpts := $values.javaOpts.other }}
+            {{- if $values.javaOpts.zgc }}
+            {{-   $otherOpts = printf "%s -XX:+UseZGC" $otherOpts | trim }}
+            {{-   if $values.javaOpts.zgcUncommitDelay }}{{ $otherOpts = printf "%s -XX:ZUncommitDelay=%s" $otherOpts $values.javaOpts.zgcUncommitDelay | trim }}{{- end }}
+            {{- end }}
+            {{- if not (empty $otherOpts) }}
             - name: JAVA_OPTS_OTHER
-              value: "{{ $values.javaOpts.other }}"
+              value: "{{ $otherOpts }}"
             {{- end }}
             {{- if and $values.configuration.businessmobility.logging.debug.enabled (get $roleMap "businessmobility") }}
             - name: EAS_DEBUG
@@ -436,9 +449,18 @@ spec:
             - name: JAVA_OPTS_NET
               value: "{{ $context.Values.javaOpts.network }}"
             {{- end }}
-            {{- if not (empty $context.Values.javaOpts.other) }}
+            {{- if $context.Values.javaOpts.mallocArenaMax }}
+            - name: MALLOC_ARENA_MAX
+              value: "{{ $context.Values.javaOpts.mallocArenaMax }}"
+            {{- end }}
+            {{- $otherOpts := $context.Values.javaOpts.other }}
+            {{- if $context.Values.javaOpts.zgc }}
+            {{-   $otherOpts = printf "%s -XX:+UseZGC" $otherOpts | trim }}
+            {{-   if $context.Values.javaOpts.zgcUncommitDelay }}{{ $otherOpts = printf "%s -XX:ZUncommitDelay=%s" $otherOpts $context.Values.javaOpts.zgcUncommitDelay | trim }}{{- end }}
+            {{- end }}
+            {{- if not (empty $otherOpts) }}
             - name: JAVA_OPTS_OTHER
-              value: "{{ $context.Values.javaOpts.other }}"
+              value: "{{ $otherOpts }}"
             {{- end }}
           envFrom:
             - secretRef:

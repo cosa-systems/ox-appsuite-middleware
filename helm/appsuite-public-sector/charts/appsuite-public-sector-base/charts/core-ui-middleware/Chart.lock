@@ -1,6 +1,9 @@
 dependencies:
 - name: ox-common
   repository: oci://registry.open-xchange.com/appsuite-core-internal/charts
-  version: 1.0.50
-digest: sha256:545b1ec182e1d2af4ec473a0ee1bd91cadf2b4a0179c79a090df07748bce655e
-generated: "2026-05-12T09:21:50.83250126Z"
+  version: 1.0.51
+- name: minio
+  repository: oci://registry-1.docker.io/bitnamicharts
+  version: 14.7.16
+digest: sha256:6bfcf9aa7768ec45f4ef0519c250db4f5e146dd25071536d2ab195eeb0ec639b
+generated: "2026-08-10T11:59:28.097287075Z"

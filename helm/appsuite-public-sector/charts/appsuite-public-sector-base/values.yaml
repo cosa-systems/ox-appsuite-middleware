@@ -310,23 +310,23 @@ core-mw:
   enabled: true
   createCommonEnv: false
   image:
-    repository: appsuite-public-sector/middleware
-    tag: 8.49.108
+    repository: appsuite-release-internal/middleware
+    tag: 8.51.128
   update:
     image:
-      repository: appsuite-public-sector/middleware
-      tag: 8.49.108
+      repository: appsuite-release-internal/middleware
+      tag: 8.51.128
     defaultRegistry: registry.open-xchange.com
     podAnnotations:
-      commit.open-xchange.com/core: 3c8142d923a892c38d4ffad13904aefb10efc626
-      commit.open-xchange.com/guard: bde4037fd1e6e549a6f1f6b03ce652fd6838d762
-      commit.open-xchange.com/office: 07515efccd817a36150bfd2a62c6f11153a370eb
-      commit.open-xchange.com/weakforced: 45315409d6114849f50419c1b3efc33d387c4b3f
+      commit.open-xchange.com/core: 1c638db21df8711bc439750e382b0b49bdee8798
+      commit.open-xchange.com/guard: ad3e9d2ea469cf52035c484b0900c3704d888a6f
+      commit.open-xchange.com/office: 63239e9f9ebd6a2fd36659f752a7eafe6db45222
+      commit.open-xchange.com/weakforced: b619f574694fdccb5ac6431fa2de8fa8f029525d
   podAnnotations:
-    commit.open-xchange.com/core: 3c8142d923a892c38d4ffad13904aefb10efc626
-    commit.open-xchange.com/guard: bde4037fd1e6e549a6f1f6b03ce652fd6838d762
-    commit.open-xchange.com/office: 07515efccd817a36150bfd2a62c6f11153a370eb
-    commit.open-xchange.com/weakforced: 45315409d6114849f50419c1b3efc33d387c4b3f
+    commit.open-xchange.com/core: 1c638db21df8711bc439750e382b0b49bdee8798
+    commit.open-xchange.com/guard: ad3e9d2ea469cf52035c484b0900c3704d888a6f
+    commit.open-xchange.com/office: 63239e9f9ebd6a2fd36659f752a7eafe6db45222
+    commit.open-xchange.com/weakforced: b619f574694fdccb5ac6431fa2de8fa8f029525d
   defaultRegistry: registry.open-xchange.com
   packages:
     status:
@@ -339,84 +339,92 @@ core-mw:
       enabled: true
   gotenberg:
     image:
-      repository: registry.open-xchange.com/appsuite-public-sector/gotenberg
+      repository: registry.open-xchange.com/appsuite-release-internal/gotenberg
       tag: 8.15.3
     podAnnotations: {}
   collabora-online:
     image:
-      repository: registry.open-xchange.com/appsuite-public-sector/collabora-online@sha256
+      repository: registry.open-xchange.com/appsuite-release-internal/collabora-online@sha256
       tag: '0686d50956c3ef1baa44f91165186fcbe1663f98f298010058f12e39f6abab40'
     podAnnotations: {}
+bookingservice:
+  enabled: false
+  image:
+    repository: appsuite-release-internal/booking
+    tag: 0.5.0
+  defaultRegistry: registry.open-xchange.com
+  booking:
+    mysql:
+      host: ''
+      database: bookingdb
+      auth:
+        user: ''
+        password: ''
+    poll: {}
+  podAnnotations:
+    commit.open-xchange.com/booking: 4833457f25e0deb604a4ee912a1f53359b6aa841
 core-user-guide:
   enabled: true
   image:
-    repository: appsuite-public-sector/core-user-guide
-    tag: 8.49.2476344551
+    repository: appsuite-release-internal/core-user-guide
+    tag: 8.51.2699713927
   podAnnotations:
-    commit.open-xchange.com/user-guide: 906c2a58e2757b0f31d06efed75bfeaf8ba4e9d3
+    commit.open-xchange.com/user-guide: 14b59648cc33dd9706041349a01f008fe6387d9f
   defaultRegistry: registry.open-xchange.com
 core-documentconverter:
   enabled: true
   createCommonEnv: false
   image:
-    repository: appsuite-public-sector/documentconverter
-    tag: 8.49.2095
+    repository: appsuite-release-internal/documentconverter
+    tag: 8.51.2111
   podAnnotations:
-    commit.open-xchange.com/documentconverter: 6fb0a5c771a1893e3386f817def1cd3d7b10515c
+    commit.open-xchange.com/documentconverter: d3d5e9d4e1cf8835e7acd4d5ce6278bfddf7ca73
   defaultRegistry: registry.open-xchange.com
 core-imageconverter:
   enabled: true
   createCommonEnv: false
   image:
-    repository: appsuite-public-sector/imageconverter
-    tag: 8.49.2587
+    repository: appsuite-release-internal/imageconverter
+    tag: 8.51.2597
   podAnnotations:
-    commit.open-xchange.com/imageconverter: 89e2539a0f5b96c298d235b5d647f705788196ee
+    commit.open-xchange.com/imageconverter: 5888d7a553efc4787133d36df2734dfa5c6089c2
   defaultRegistry: registry.open-xchange.com
 core-ui:
   enabled: true
   image:
-    repository: appsuite-public-sector/core-ui
-    tag: 8.49.3
+    repository: appsuite-release-internal/core-ui
+    tag: 8.51.3
   podAnnotations:
-    commit.open-xchange.com/ui: d9a1dde54fce6873d1d84b2a86d073f2f29af6b1
+    commit.open-xchange.com/ui: d39228c12e5856796f8eb44cd7eeb2336dcda5f9
   defaultRegistry: registry.open-xchange.com
 core-ui-middleware:
   enabled: true
   image:
-    repository: appsuite-public-sector/core-ui-middleware
-    tag: 2.3.3
+    repository: appsuite-release-internal/core-ui-middleware
+    tag: 3.1.2
   podAnnotations:
-    commit.open-xchange.com/ui-service: d7e243e044b79f20cf1ff2ca46203538c89094e5
+    commit.open-xchange.com/ui-service: 130dd9f2259815a211848ef310867ee95e312b08
   existingConfigMap: "{{ .Release.Name }}-core-ui-middleware"
   defaultRegistry: registry.open-xchange.com
   redis:
     enabled: false
 extraUIManifestURLs: []
 overridableExtraUIManifestURLs: {}
-core-guidedtours:
-  enabled: true
-  image:
-    repository: appsuite-public-sector/core-guidedtours
-    tag: 8.7.4
-  podAnnotations:
-    commit.open-xchange.com/guidedtours: 64d52474a6695de59c48ec792ba06760615e7ae9
-  defaultRegistry: registry.open-xchange.com
 guard-ui:
   enabled: true
   image:
-    repository: appsuite-public-sector/guard-ui
-    tag: 8.49.0
+    repository: appsuite-release-internal/guard-ui
+    tag: 8.51.0
   podAnnotations:
-    commit.open-xchange.com/guard-ui: 931b091b301cc61a3ddcb06218073eeb18cbf1f1
+    commit.open-xchange.com/guard-ui: f8cb6eab72981499ddb163c518f522555369ed3b
   defaultRegistry: registry.open-xchange.com
 switchboard:
   enabled: true
   image:
-    repository: appsuite-public-sector/switchboard
-    tag: 5.3.2
+    repository: appsuite-release-internal/switchboard
+    tag: 5.4.1
   podAnnotations:
-    commit.open-xchange.com/switchboard: ea2b152ed4cdf499cb7071d1fda6c1ab9fd32478
+    commit.open-xchange.com/switchboard: f6e1ebcbad1d1380e02af1f2c661a5efd8cd2e05
   defaultRegistry: registry.open-xchange.com
 extras:
   monitoring:
@@ -440,14 +448,14 @@ appsuite-toolkit:
   replicaCount: 0
   defaultRegistry: registry.open-xchange.com
   image:
-    repository: appsuite-public-sector/appsuite-toolkit
-    tag: 1.16.1781328
+    repository: appsuite-release-internal/appsuite-toolkit
+    tag: 1.18.1919674
   mwctl:
     image:
-      repository: appsuite-public-sector/middleware-debug
-      tag: 2.0.1888592
+      repository: appsuite-release-internal/middleware-debug
+      tag: 2.0.2750267303
     defaultRegistry: registry.open-xchange.com
     podAnnotations:
-      commit.open-xchange.com/middleware-debug: add5352b6ac00aea6e59f9d26e8403a7ca415982
+      commit.open-xchange.com/middleware-debug: a808de706d5edffb678a76711b17819fe1e50e3a
   podAnnotations:
-    commit.open-xchange.com/appsuite-toolkit: 017faad1450f3fe6593778fdcf45ad0a46138dab
+    commit.open-xchange.com/appsuite-toolkit: 689a7cd833f69156c6cab34f6eb2d193f4bf1b48

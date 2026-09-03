@@ -1,6 +1,6 @@
 # core-mw
 
-![Version: 6.20.2](https://img.shields.io/badge/Version-6.20.2-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 8.49.0](https://img.shields.io/badge/AppVersion-8.49.0-informational?style=flat-square)
+![Version: 6.22.2](https://img.shields.io/badge/Version-6.22.2-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 8.51.0](https://img.shields.io/badge/AppVersion-8.51.0-informational?style=flat-square)
 
 App Suite Middleware Core Helm Chart
 
@@ -57,6 +57,38 @@ Not necessary anymore but it's possible to override them e.g. via `.Values.globa
 
 - Added support for `PodDisruptionBudget` (PDB) via the new `pdb` configuration section.
 - This version adds a new `middleware.open-xchange.com/type` label to pods. Upgrading to this version will trigger a rolling restart of all pods due to the label change.
+
+### 6.21.0
+
+#### Third-party Java agent support
+
+The chart supports injecting third-party Java agents (e.g. Elastic APM) into the middleware pod via `extraInitContainers`. A typical setup uses an init container to copy the agent JAR into a shared volume, which is then mounted into the middleware container and activated via `javaOpts.other`.
+
+> **Support scope:** OX supports the Helm injection mechanism (`extraInitContainers`, `extraVolumes`, `extraMounts`, `javaOpts.other`). The internal behavior of third-party agents is outside OX support scope.
+
+##### Example: Elastic APM agent
+
+```yaml
+extraInitContainers:
+  - name: elastic-apm-init
+    image: docker.elastic.co/apm/apm-agent-java:1.52.0
+    command: ["cp", "/usr/agent/elastic-apm-agent.jar", "/apm-agent/"]
+    volumeMounts:
+      - name: apm-agent
+        mountPath: /apm-agent
+
+extraVolumes:
+  - name: apm-agent
+    emptyDir: {}
+
+extraMounts:
+  - name: apm-agent
+    mountPath: /opt/apm-agent
+    readOnly: true
+
+javaOpts:
+  other: "-javaagent:/opt/apm-agent/elastic-apm-agent.jar"
+```
 
 ## Upgrading
 
@@ -175,6 +207,69 @@ This process needs to be followed for all node definitions that previously had t
 
 Don't forget to scale up the replicas in your `values.yaml` again.
 
+## Using `existing*Secret` values
+
+The `existing*Secret` values let you supply configuration from **Secrets you create and manage yourself**
+(for example via Vault, sealed-secrets or external-secrets) instead of placing sensitive data directly in
+`values.yaml`. The chart only *references* these Secrets, so each one **must already exist in the release
+namespace** before you install or upgrade.
+
+There are two behaviors. Know which one applies to the value you are setting:
+
+- **Additive** &ndash; your Secret is mounted *alongside* the chart-rendered configuration; both apply.
+- **Replace** &ndash; your Secret *replaces* the chart-rendered equivalent, and the corresponding plain
+  `values.yaml` settings are then ignored.
+
+| Value | Behavior | Combines with / replaces |
+|-------|----------|--------------------------|
+| `existingPropertiesSecret`   | Additive | `properties`, `secretProperties`, `propertiesFiles`, `secretPropertiesFiles` |
+| `existingUISettingsSecret`   | Additive | `uiSettings`, `secretUISettings`, `uiSettingsFiles`, `secretUISettingsFiles` |
+| `existingMetaSecret`         | Additive | `meta` |
+| `existingContextSetsSecret`  | Additive | `contextSets`, `secretContextSets` |
+| `existingETCFilesSecret`     | Additive | `etcFiles`, `secretETCFiles` |
+| `existingETCBinariesSecret`  | Additive | `etcBinaries`, `secretETCBinaries` |
+| `existingYAMLFilesSecret`    | Additive | `yamlFiles`, `secretYAMLFiles` |
+| `existingASConfigSecret`     | **Replace** | `asConfig` |
+| `existingEnvSecret`          | Additive (env) | container environment (`envFrom`) |
+| `redis.existingSecret`       | **Replace** | chart-generated Redis properties secret |
+| `mysql.existingSecret`       | **Replace** | chart-generated configdb credentials secret |
+
+### Override precedence
+
+For the additive property/UI-settings secrets, configuration is applied in numeric file-name order. To make
+your file win over the chart-generated configuration, prefix it with a number higher than the chart's:
+
+- properties: use a prefix `>= 1001` (the chart uses `<= 1000`)
+- UI settings: use a prefix `>= 2001` (the chart uses `<= 2000`)
+
+```yaml
+# stringData of the secret named by existingPropertiesSecret
+1001_existing.yaml: |
+  anywhere:
+    com.openexchange.foobar: "true"
+```
+
+`existingEnvSecret` is added as the **last** `envFrom` source, so on a duplicate key it overrides the
+common-env and chart-generated env secrets, but never `extraEnv`. For example, a `MASTER_ADMIN_USER` key in
+your secret wins over the `MASTER_ADMIN_USER` the chart generates from `masterAdmin`.
+
+This override happens **only at the container-environment level**. The chart's own templating still reads the
+plain `masterAdmin` / `masterPassword` values (it does *not* look at `existingEnvSecret`) when it generates
+other resources.
+
+### Rolling restarts on content change
+
+With `checksums.existingSecrets: true` (the default), the checksum of each referenced Secret's contents is
+folded into a pod annotation, so editing a Secret triggers a rolling restart.
+
+### Example
+
+```yaml
+existingPropertiesSecret: my-extra-props   # additive; file prefixed 1001_ to override chart props
+existingASConfigSecret: my-as-config       # replaces asConfig entirely
+existingEnvSecret: my-env                  # extra environment variables, last-wins on duplicate keys
+```
+
 ## Configuration
 
 The following table lists the configurable parameters of the `App Suite Middleware Core` chart and their default values.
@@ -222,17 +317,18 @@ The following table lists the configurable parameters of the `App Suite Middlewa
 | enableInitialization | bool | `false` | Whether initial bootstraping is enabled or not. |
 | etcBinaries | list | `[]` | etc files |
 | etcFiles | object | `{}` | etc files |
-| existingASConfigSecret | string | `""` | Name of an existing secret with as-config.yaml |
-| existingContextSetsSecret | string | `""` | Name of an existing secret with context sets |
-| existingETCBinariesSecret | string | `""` | Name of an existing secret with binary files |
-| existingETCFilesSecret | string | `""` | Name of an existing secret with files |
-| existingEnvSecret | string | `""` | Name of an existing secret with environment variable that will be added to the container. Those env variable take precedence over the common and secret env vars, but not over extraEnv. |
-| existingMetaSecret | string | `""` | Name of an existing secret with meta settings |
-| existingPropertiesSecret | string | `""` | Name of an existing secret with properties |
-| existingUISettingsSecret | string | `""` | Name of an existing secret with ui settings |
-| existingYAMLFilesSecret | string | `""` | Name of an existing secret with yaml files |
+| existingASConfigSecret | string | `""` | Name of an existing, self-managed secret (in the release namespace) holding `as-config.yml`. When set, this *replaces* the chart-rendered `asConfig` entirely (the `asConfig` value is then ignored). Content changes trigger a rolling restart when `checksums.existingSecrets` is enabled. |
+| existingContextSetsSecret | string | `""` | Name of an existing, self-managed secret (in the release namespace) holding additional context sets. Mounted *in addition to* `contextSets`/`secretContextSets`. Content changes trigger a rolling restart when `checksums.existingSecrets` is enabled. |
+| existingETCBinariesSecret | string | `""` | Name of an existing, self-managed secret (in the release namespace) holding additional binary etc files. Mounted *in addition to* `etcBinaries`/`secretETCBinaries`. Content changes trigger a rolling restart when `checksums.existingSecrets` is enabled. |
+| existingETCFilesSecret | string | `""` | Name of an existing, self-managed secret (in the release namespace) holding additional etc files. Mounted *in addition to* `etcFiles`/`secretETCFiles`. Content changes trigger a rolling restart when `checksums.existingSecrets` is enabled. |
+| existingEnvSecret | string | `""` | Name of an existing, self-managed secret (in the release namespace) whose keys are added as environment variables to the containers (via `envFrom`). It is mounted last, so on a duplicate key it takes precedence over the common-env and chart-generated env secrets, but not over `extraEnv`. Note: this only affects the container environment; values the chart reads internally (e.g. `masterAdmin`) are not changed by it. Content changes trigger a rolling restart when `checksums.existingSecrets` is enabled. |
+| existingMetaSecret | string | `""` | Name of an existing, self-managed secret (in the release namespace) holding additional meta settings. Mounted *in addition to* `meta`. Content changes trigger a rolling restart when `checksums.existingSecrets` is enabled. |
+| existingPropertiesSecret | string | `""` | Name of an existing, self-managed secret (in the release namespace) holding additional properties. Mounted *in addition to* `properties`/`secretProperties`/`propertiesFiles`/`secretPropertiesFiles`. Content changes trigger a rolling restart when `checksums.existingSecrets` is enabled. |
+| existingUISettingsSecret | string | `""` | Name of an existing, self-managed secret (in the release namespace) holding additional UI settings. Mounted *in addition to* `uiSettings`/`secretUISettings`/`uiSettingsFiles`/`secretUISettingsFiles`. Content changes trigger a rolling restart when `checksums.existingSecrets` is enabled. |
+| existingYAMLFilesSecret | string | `""` | Name of an existing, self-managed secret (in the release namespace) holding additional YAML files. Mounted *in addition to* `yamlFiles`/`secretYAMLFiles`. Content changes trigger a rolling restart when `checksums.existingSecrets` is enabled. |
 | extraContainers | list | `[]` | List of extra sidecar containers |
 | extraEnv | list | `[]` | List of extra environment variables |
+| extraInitContainers | list | `[]` | List of extra init containers injected into `spec.initContainers`. Use this to prepare volumes or run setup tasks before the middleware starts (e.g. copying a Java agent JAR). OX supports the Helm injection mechanism; the behavior of third-party agents is outside OX support scope. |
 | extraMounts | list | `[]` | List of extra mounts |
 | extraPodSpec | object | `{}` | Extra PodSpec definitions |
 | extraStatefulSetProperties | object | `{}` | List of extra StatefulSet properties |
@@ -286,8 +382,9 @@ The following table lists the configurable parameters of the `App Suite Middlewa
 | javaOpts.memory.maxHeapSize | string | `"2048M"` | Sets -XX:MaxHeapSize. Ignored if maxRAMPercentage is set. |
 | javaOpts.memory.maxRAMPercentage | string | `""` | Sets -XX:MaxRAMPercentage instead of maxHeapSize. Takes precedence over maxHeapSize when set. |
 | javaOpts.network | string | `""` |  |
-| javaOpts.other | string | `""` |  |
+| javaOpts.other | string | `"-XX:+UseCompactObjectHeaders"` | Extra JVM options appended verbatim (env `JAVA_OPTS_OTHER`). Default enables Compact Object Headers (`-XX:+UseCompactObjectHeaders`, JEP 519): 8-byte object headers → less live heap and GC pressure. (To switch the garbage collector to ZGC, use `zgc` below — not this field.) |
 | javaOpts.server | string | `""` |  |
+| javaOpts.zgc | bool | `false` | Use generational ZGC instead of the default G1 (appends `-XX:+UseZGC`). Opt-in: ZGC gives sub-ms, near-constant GC pauses, well-suited to the virtual-thread worker pool, but needs substantial native-memory headroom beyond the heap (off-heap generational structures plus socket/NIO direct buffers). Too little does NOT surface as an OOM — it shows up as failures to open IMAP/SMTP connections under load. A ~50% heap ratio alone is not enough at small limits: in CI, 4G heap on a 6G limit and 3G heap on a 6G limit both failed, while 4G heap on an 8G limit (~3-4G free) passed cleanly. Before enabling, size heap ≤ ~50% of resources.limits.memory AND leave several GB free (e.g. a 4G heap wants an ≥8G limit). Validate under load before rollout. |
 | jolokiaLogin | string | `""` | User used for authentication with HTTP Basic Authentication. |
 | jolokiaPassword | string | `""` | Password used for authentification with HTTP Basic Authentication. |
 | masterAdmin | string | `""` | The name of the master admin. |
@@ -301,7 +398,7 @@ The following table lists the configurable parameters of the `App Suite Middlewa
 | mysql.auth.writePassword | string | `""` | The database password. *`(write connection)`* |
 | mysql.auth.writeUser | string | `""` | The database user name. *`(write connection)`* |
 | mysql.database | string | `""` | The database/schema name. *`(read/write connection)`* |
-| mysql.existingSecret | string | `""` | Name of an existing secret. |
+| mysql.existingSecret | string | `""` | Name of an existing, self-managed secret (in the release namespace) holding the configdb connection credentials. When set, the chart does *not* render its own MySQL secret and references this one instead. Unlike the other `existing*` secrets, this is not tracked by the `checksums.existingSecrets` annotation. |
 | mysql.host | string | `""` | The database host. *`(read/write connection)`* |
 | mysql.port | string | `""` | The database port. *`(read/write connection)`* |
 | mysql.readDatabase | string | `""` | The database/schema name. *`(read connection)`* |
@@ -363,7 +460,7 @@ The following table lists the configurable parameters of the `App Suite Middlewa
 | redis.cache.sentinelMasterId | string | `""` | Name of the `sentinel` masterSet, if operation mode is set to `sentinel`. |
 | redis.cache.tls | object | `{"enabled":false}` | Redis TLS configuration. |
 | redis.cache.tls.enabled | bool | `false` | Whether to use TLS to connect to Redis end-point or not. |
-| redis.existingSecret | string | `""` | Name of an existing secret with Redis properties. |
+| redis.existingSecret | string | `""` | Name of an existing, self-managed secret (in the release namespace) holding Redis properties. When set, this *replaces* the chart-generated Redis properties secret. Content changes trigger a rolling restart when `checksums.existingSecrets` is enabled. |
 | redis.extraEnvVars | list | `[]` | List of extra environment variables |
 | redis.hosts | list | `[]` | List of `Redis` hosts: <br/> Example for `redis`: [ <redis_host>:<redis_port> ] <br/> Example for `redis+sentinel`: [ <sentinel1_host>:<sentinel1_port>,<sentinel2_host>:<sentinel2_port>,<sentinel3_host>:<sentinel3_port> ] <br/> > Note: If `hosts` is empty or null, then an internal `redis`-standalone instance will be deployed. |
 | redis.image.repository | string | `"redis"` | Redis image repository |

@@ -160,6 +160,27 @@ spec:
       {{- $extraRouteProperties | toYaml | nindent 6 }}
       {{- end }}
     {{- end }}
+    {{- if and (get .Values "bookingservice") (get .Values "bookingservice").enabled }}
+    - name: "booking-route"
+      match:
+        - uri:
+            prefix: "/booking"
+      route:
+        - destination:
+            host: "{{ include "appsuite.fullnameFromComponent" (dict "Context" $ "Component" "bookingservice") }}.{{ .Release.Namespace }}.svc.cluster.local"
+            port:
+              number: {{ default 80 (index .Values "bookingservice" "service" "port") }}
+      {{- if $services.headers }}
+      headers:
+        request:
+          set:
+            host: {{ $services.headers.request.set.host | quote }}
+            x-host: {{ index $services.headers.request.set "x-host" | quote }}
+      {{- end }}
+      {{- if not (empty $extraRouteProperties) }}
+      {{- $extraRouteProperties | toYaml | nindent 6 }}
+      {{- end }}
+    {{- end }}
     {{- if (get .Values "core-mw").enabled }}
     - name: "guard-api-route"
       match:

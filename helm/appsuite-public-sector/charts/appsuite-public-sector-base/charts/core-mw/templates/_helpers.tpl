@@ -458,6 +458,12 @@ it is added to the list. A package is disabled, if:
 {{- end }}
 {{- end -}}
 
+{{- define "core-mw.extraInitContainers" -}}
+{{- if .Values.extraInitContainers }}
+{{ toYaml .Values.extraInitContainers }}
+{{- end }}
+{{- end -}}
+
 {{/*
 Creates a map out of a list of role names, so one can easier check whether a certain type has a certain role
 Usage:
@@ -604,6 +610,12 @@ metadata:
 {{-   $existingPropertiesSecret := (lookup "v1" "Secret" $context.Release.Namespace (printf "%s" $values.existingPropertiesSecret)) -}}
 {{-   if $existingPropertiesSecret.data -}}
 {{-     $_ := set $result "existingPropertiesSecret" $existingPropertiesSecret.data -}}
+{{-   end -}}
+{{- end -}}
+{{- if $values.existingUISettingsSecret -}}
+{{-   $existingUISettingsSecret := (lookup "v1" "Secret" $context.Release.Namespace (printf "%s" $values.existingUISettingsSecret)) -}}
+{{-   if $existingUISettingsSecret.data -}}
+{{-     $_ := set $result "existingUISettingsSecret" $existingUISettingsSecret.data -}}
 {{-   end -}}
 {{- end -}}
 {{- if $values.existingMetaSecret -}}

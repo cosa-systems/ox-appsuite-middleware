@@ -6,29 +6,31 @@ appsuite:
   core-mw:
     image:
       repository: appsuite-public-sector/middleware-public-sector
-      tag: 8.49.113
+      tag: 8.51.129
     defaultRegistry: registry.open-xchange.com
     podAnnotations:
-      commit.open-xchange.com/core: '068850e644ec2b2e95fb073d4bdd704f0e98907c'
-      commit.open-xchange.com/exchange-interop: e43f77b956c8fa0bb49f8ed4d075e3c3de8f1351
-      commit.open-xchange.com/guard: bde4037fd1e6e549a6f1f6b03ce652fd6838d762
-      commit.open-xchange.com/nextcloud-integration: 8cf1b742aff361973f638204afcb05eb59e53dcc
-      commit.open-xchange.com/office: 07515efccd817a36150bfd2a62c6f11153a370eb
-      commit.open-xchange.com/public-sector: 241b800594d74df1ab2846050d986e1ace48723e
-      commit.open-xchange.com/weakforced: 45315409d6114849f50419c1b3efc33d387c4b3f
+      commit.open-xchange.com/core: 20e9b225b1fe97a8512199a21801ce2f661f51f2
+      commit.open-xchange.com/exchange-interop: 7f1a3dbe58bfa9a712103264563d724f620c39c3
+      commit.open-xchange.com/guard: ad3e9d2ea469cf52035c484b0900c3704d888a6f
+      commit.open-xchange.com/nextcloud-integration: 8d0a62e22ed4183bb6331d209118f24e7e5438ec
+      commit.open-xchange.com/office: 63239e9f9ebd6a2fd36659f752a7eafe6db45222
+      commit.open-xchange.com/owncloud-integration: 3ee2a7553d5d932f5fe934e6d6ac8a8724dc3fdd
+      commit.open-xchange.com/public-sector: 66d255f38e0695ba3d900986836586e780301a8e
+      commit.open-xchange.com/weakforced: b619f574694fdccb5ac6431fa2de8fa8f029525d
     update:
       image:
         repository: appsuite-public-sector/middleware-public-sector
-        tag: 8.49.113
+        tag: 8.51.129
       defaultRegistry: registry.open-xchange.com
       podAnnotations:
-        commit.open-xchange.com/core: '068850e644ec2b2e95fb073d4bdd704f0e98907c'
-        commit.open-xchange.com/exchange-interop: e43f77b956c8fa0bb49f8ed4d075e3c3de8f1351
-        commit.open-xchange.com/guard: bde4037fd1e6e549a6f1f6b03ce652fd6838d762
-        commit.open-xchange.com/nextcloud-integration: 8cf1b742aff361973f638204afcb05eb59e53dcc
-        commit.open-xchange.com/office: 07515efccd817a36150bfd2a62c6f11153a370eb
-        commit.open-xchange.com/public-sector: 241b800594d74df1ab2846050d986e1ace48723e
-        commit.open-xchange.com/weakforced: 45315409d6114849f50419c1b3efc33d387c4b3f
+        commit.open-xchange.com/core: 20e9b225b1fe97a8512199a21801ce2f661f51f2
+        commit.open-xchange.com/exchange-interop: 7f1a3dbe58bfa9a712103264563d724f620c39c3
+        commit.open-xchange.com/guard: ad3e9d2ea469cf52035c484b0900c3704d888a6f
+        commit.open-xchange.com/nextcloud-integration: 8d0a62e22ed4183bb6331d209118f24e7e5438ec
+        commit.open-xchange.com/office: 63239e9f9ebd6a2fd36659f752a7eafe6db45222
+        commit.open-xchange.com/owncloud-integration: 3ee2a7553d5d932f5fe934e6d6ac8a8724dc3fdd
+        commit.open-xchange.com/public-sector: 66d255f38e0695ba3d900986836586e780301a8e
+        commit.open-xchange.com/weakforced: b619f574694fdccb5ac6431fa2de8fa8f029525d
 nextcloud-integration-ui:
   enabled: true
   image:
@@ -37,6 +39,14 @@ nextcloud-integration-ui:
   defaultRegistry: registry.open-xchange.com
   podAnnotations:
     commit.open-xchange.com/nextcloud-integration-ui: '068ac0ea76cd2dc4028201169edc52ea8fb252b2'
+owncloud-integration-ui:
+  enabled: false
+  image:
+    repository: appsuite-public-sector/owncloud-integration-ui
+    tag: 0.1.1
+  defaultRegistry: registry.open-xchange.com
+  podAnnotations:
+    commit.open-xchange.com/owncloud-integration-ui: d9c407b9304a7ed3acb1b5788e38c5821815ea63
 public-sector-ui:
   enabled: true
   image:

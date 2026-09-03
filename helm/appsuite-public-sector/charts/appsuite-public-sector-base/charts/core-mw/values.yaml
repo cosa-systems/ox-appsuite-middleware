@@ -282,7 +282,30 @@ resources:
     memory: 4096Mi
 
 javaOpts:
-  other: ""
+  # -- Extra JVM options appended verbatim (env `JAVA_OPTS_OTHER`). Default enables Compact Object
+  # Headers (`-XX:+UseCompactObjectHeaders`, JEP 519): 8-byte object headers → less live heap and
+  # GC pressure. (To switch the garbage collector to ZGC, use `zgc` below — not this field.)
+  other: "-XX:+UseCompactObjectHeaders"
+  # -- Use generational ZGC instead of the default G1 (appends `-XX:+UseZGC`). Opt-in: ZGC gives
+  # sub-ms, near-constant GC pauses, well-suited to the virtual-thread worker pool, but needs
+  # substantial native-memory headroom beyond the heap (off-heap generational structures plus
+  # socket/NIO direct buffers). Too little does NOT surface as an OOM — it shows up as failures to
+  # open IMAP/SMTP connections under load. A ~50% heap ratio alone is not enough at small limits: in
+  # CI, 4G heap on a 6G limit and 3G heap on a 6G limit both failed, while 4G heap on an 8G limit
+  # (~3-4G free) passed cleanly. Before enabling, size heap ≤ ~50% of resources.limits.memory AND
+  # leave several GB free (e.g. a 4G heap wants an ≥8G limit). Validate under load before rollout.
+  zgc: false
+  # -- Caps glibc malloc arenas via the `MALLOC_ARENA_MAX` env var to bound native memory.
+  # The many-threaded (virtual-thread) middleware otherwise retains ~1.2G in per-thread malloc
+  # arenas; "2" cuts that back — bringing ZGC's non-heap native down to G1 level and letting ZGC
+  # fit a 6G limit at a 4G heap (vs 8G uncapped). Benefits G1 too. Set to "" for the glibc default.
+  # Minor malloc-contention trade-off at very high concurrency. See SCR-1723.
+  mallocArenaMax: "2"
+  # -- ZGC only (ignored unless `zgc: true`): seconds of idle before unused heap is uncommitted to the
+  # OS (`-XX:ZUncommitDelay`; uncommit is on by default). Lower returns idle memory faster, at a
+  # page-fault cost on reload — useful for "pay per used memory" hosting. Empty = JVM default (300).
+  # e.g. "60". Note: this returns heap only, not glibc malloc arenas (see mallocArenaMax). See SCR-1723.
+  zgcUncommitDelay: ""
   server: ""
   network: ""
   memory:
@@ -406,7 +429,9 @@ probeHeaders: []
 ##   readUser: "openexchange"
 ##   readPassword: "readPassword"
 mysql:
-  # -- Name of an existing secret.
+  # -- Name of an existing, self-managed secret (in the release namespace) holding the configdb connection
+  # credentials. When set, the chart does *not* render its own MySQL secret and references this one instead.
+  # Unlike the other `existing*` secrets, this is not tracked by the `checksums.existingSecrets` annotation.
   existingSecret: ""
   # -- The database host.
   # *`(read/write connection)`*
@@ -459,7 +484,9 @@ mysql:
     readPassword: ""
 
 redis:
-  # -- Name of an existing secret with Redis properties.
+  # -- Name of an existing, self-managed secret (in the release namespace) holding Redis properties.
+  # When set, this *replaces* the chart-generated Redis properties secret.
+  # Content changes trigger a rolling restart when `checksums.existingSecrets` is enabled.
   existingSecret: ""
   #
   #  apiVersion: v1
@@ -625,7 +652,9 @@ secretPropertiesFiles: {}
 #    com.openexchange.some.specific.secret.prop: Some Value
 #    com.openexchange.some.specific.secret.prop2: Some Value
 
-# -- Name of an existing secret with properties
+# -- Name of an existing, self-managed secret (in the release namespace) holding additional properties.
+# Mounted *in addition to* `properties`/`secretProperties`/`propertiesFiles`/`secretPropertiesFiles`.
+# Content changes trigger a rolling restart when `checksums.existingSecrets` is enabled.
 existingPropertiesSecret: ""
 # 
 #  apiVersion: v1
@@ -659,7 +688,9 @@ secretUISettingsFiles: {}
 #    io.ox/core//some/secret/specific/property: Some Value
 #    io.ox/core//some/secret/specific/property2: Some Value
 
-# -- Name of an existing secret with ui settings
+# -- Name of an existing, self-managed secret (in the release namespace) holding additional UI settings.
+# Mounted *in addition to* `uiSettings`/`secretUISettings`/`uiSettingsFiles`/`secretUISettingsFiles`.
+# Content changes trigger a rolling restart when `checksums.existingSecrets` is enabled.
 existingUISettingsSecret: ""
 #
 #  apiVersion: v1
@@ -680,7 +711,8 @@ meta: {}
 #  io.ox/core//apps/quickLaunchCount:
 #    protected: false
 
-# -- Name of an existing secret with meta settings
+# -- Name of an existing, self-managed secret (in the release namespace) holding additional meta settings.
+# Mounted *in addition to* `meta`. Content changes trigger a rolling restart when `checksums.existingSecrets` is enabled.
 existingMetaSecret: ""
 #
 #  apiVersion: v1
@@ -703,7 +735,9 @@ secretContextSets: {}
 #    withTags: brand.com
 #    com.openexchange.google.secret_key_id: abc123
 
-# -- Name of an existing secret with context sets
+# -- Name of an existing, self-managed secret (in the release namespace) holding additional context sets.
+# Mounted *in addition to* `contextSets`/`secretContextSets`.
+# Content changes trigger a rolling restart when `checksums.existingSecrets` is enabled.
 existingContextSetsSecret: ""
 #
 #  apiVersion: v1
@@ -723,7 +757,9 @@ asConfig:
 #    host: myexchange.myhost.mytld
 #    someConfig: some overriding value
 
-# -- Name of an existing secret with as-config.yaml
+# -- Name of an existing, self-managed secret (in the release namespace) holding `as-config.yml`.
+# When set, this *replaces* the chart-rendered `asConfig` entirely (the `asConfig` value is then ignored).
+# Content changes trigger a rolling restart when `checksums.existingSecrets` is enabled.
 existingASConfigSecret: ""
 #
 #  apiVersion: v1
@@ -740,7 +776,9 @@ etcFiles: {}
 # -- Secret etc files
 secretETCFiles: {}
 
-# -- Name of an existing secret with files
+# -- Name of an existing, self-managed secret (in the release namespace) holding additional etc files.
+# Mounted *in addition to* `etcFiles`/`secretETCFiles`.
+# Content changes trigger a rolling restart when `checksums.existingSecrets` is enabled.
 existingETCFilesSecret: ""
 #
 #  apiVersion: v1
@@ -762,7 +800,9 @@ secretETCBinaries: []
 #     filename: something.bin
 #     b64Content: <base 64 encoded file content>
 
-# -- Name of an existing secret with binary files
+# -- Name of an existing, self-managed secret (in the release namespace) holding additional binary etc files.
+# Mounted *in addition to* `etcBinaries`/`secretETCBinaries`.
+# Content changes trigger a rolling restart when `checksums.existingSecrets` is enabled.
 existingETCBinariesSecret: ""
 #
 #  apiVersion: v1
@@ -785,7 +825,9 @@ secretYAMLFiles: {}
 #  relative/path/to/yamlFile2:
 #    key: value
 
-# -- Name of an existing secret with yaml files
+# -- Name of an existing, self-managed secret (in the release namespace) holding additional YAML files.
+# Mounted *in addition to* `yamlFiles`/`secretYAMLFiles`.
+# Content changes trigger a rolling restart when `checksums.existingSecrets` is enabled.
 existingYAMLFilesSecret: ""
 #
 #  apiVersion: v1
@@ -859,6 +901,11 @@ defaultScaling:
 #      replicas: 1
 #      roles:
 #        - businessmobility
+# -- List of extra init containers injected into `spec.initContainers`.
+# Use this to prepare volumes or run setup tasks before the middleware starts (e.g. copying a Java agent JAR).
+# OX supports the Helm injection mechanism; the behavior of third-party agents is outside OX support scope.
+extraInitContainers: []
+
 # -- List of extra sidecar containers
 extraContainers: []
 
@@ -955,7 +1002,11 @@ extras:
 # -- Whether to create a shared secret containing common properties as environment variables (e.g. SESSIOND_ENCRYPTION_KEY)
 createCommonEnv: true
 
-# -- Name of an existing secret with environment variable that will be added to the container. Those env variable take precedence over the common and secret env vars, but not over extraEnv.
+# -- Name of an existing, self-managed secret (in the release namespace) whose keys are added as
+# environment variables to the containers (via `envFrom`). It is mounted last, so on a duplicate key it
+# takes precedence over the common-env and chart-generated env secrets, but not over `extraEnv`.
+# Note: this only affects the container environment; values the chart reads internally (e.g. `masterAdmin`)
+# are not changed by it. Content changes trigger a rolling restart when `checksums.existingSecrets` is enabled.
 existingEnvSecret: ""
 #
 #  apiVersion: v1
